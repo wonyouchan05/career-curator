@@ -268,6 +268,112 @@ select:focus {
 }
 .btn-ghost:hover { background: var(--bg); color: var(--text); }
 
+/* ── 화면1: 홈 새 레이아웃 ─────────────────────────────────── */
+.home-hero {
+  text-align: center;
+  padding: 52px 24px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.home-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin: 12px 0;
+}
+.home-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--primary), var(--indigo2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.home-sub {
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.home-gap-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px 28px;
+}
+.home-gap-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.home-stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  text-align: center;
+}
+.home-stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.home-stat-card strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+}
+.home-stat-card--accent strong { color: var(--primary); }
+.home-stat-card--red    strong { color: #EF4444; }
+
+.home-chart-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  height: 280px;
+  margin-bottom: 14px;
+}
+.home-gap-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+.home-gap-msg {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0;
+}
+
+.btn-sm {
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+
+.home-divider {
+  border: none;
+  border-top: 2px solid var(--border);
+  max-width: 720px;
+  margin: 0 auto 36px;
+}
+.home-form-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+.home-form-wrap .form-card {
+  flex: none;
+  width: 100%;
+}
+
 /* ── 화면2: 채팅 ──────────────────────────────────────────── */
 #screen-chat.active { display: flex; }
 

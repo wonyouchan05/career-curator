@@ -6,6 +6,8 @@ const state = {
   detectedInterests: [],
   gapLoaded:         false,
   gapChart:          null,
+  homeGapLoaded:     false,
+  homeChart:         null,
   sending:           false,
 };
 
@@ -94,7 +96,8 @@ function showScreen(name) {
     l.classList.toggle('active', l.dataset.screen === name);
   });
 
-  if (name === 'gap' && !state.gapLoaded) loadGapChart();
+  if (name === 'gap'  && !state.gapLoaded)     loadGapChart();
+  if (name === 'home' && !state.homeGapLoaded) loadHomeGap();
 }
 
 // 네비 링크 & 로고 클릭
@@ -585,6 +588,53 @@ function renderHomeActivities(interests) {
   ).join('');
 }
 
+/* ── 화면1: 홈 지역격차 요약 ──────────────────────────────────── */
+async function loadHomeGap() {
+  try {
+    const res  = await fetch('/stats/regional-gap');
+    const data = await res.json();
+    const stats = data.regional_stats || [];
+    if (!stats.length) return;
+
+    const max   = stats[0];
+    const min   = stats[stats.length - 1];
+    const ratio = Math.round(max['기관수'] / Math.max(min['기관수'], 1) * 10) / 10;
+
+    $('home-stat-total').textContent = data.total.toLocaleString() + '개';
+    $('home-stat-gap').textContent   = `${max['시도']} ${max['기관수']}개 vs ${min['시도']} ${min['기관수']}개`;
+    $('home-stat-ratio').textContent = ratio + '배';
+
+    const labels = stats.map(s => s['시도']);
+    const values = stats.map(s => s['기관수']);
+    const colors = stats.map(s => s['시도'] === max['시도'] ? '#EF4444' : '#818CF8');
+
+    if (state.homeChart) state.homeChart.destroy();
+    state.homeChart = new Chart($('home-gap-chart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, borderSkipped: false }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}개` } },
+        },
+        scales: {
+          x: { grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 }, color: '#9CA3AF' } },
+          y: { grid: { display: false },   ticks: { font: { family: "'Noto Sans KR', sans-serif", size: 11 }, color: '#374151' } },
+        },
+      },
+    });
+    state.homeGapLoaded = true;
+  } catch { /* silent */ }
+}
+
+$('btn-detail-gap').addEventListener('click', () => showScreen('gap'));
+
 /* ── 화면4: 지역 격차 ─────────────────────────────────────── */
 async function loadGapChart() {
   try {
@@ -659,3 +709,6 @@ function isValidUrl(url) {
     url.startsWith('http') || url.startsWith('www')
   );
 }
+
+// 초기 로드 — 홈 화면 지역격차 데이터
+loadHomeGap();

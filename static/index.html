@@ -26,22 +26,46 @@
 
   <!-- ── 화면 1: 홈 ─────────────────────────────── -->
   <section id="screen-home" class="screen active">
-    <div class="hero">
-      <div class="hero-text">
-        <span class="hero-badge">📊 공공데이터 기반 · 무료 서비스</span>
-        <h1>있는지도 몰랐던<br><em>기회</em>를 찾아드립니다</h1>
-        <p class="hero-sub">AI가 직접 물어보며 나에게 맞는<br>영재원·진로체험을 찾아드려요</p>
-        <div class="hero-stats">
-          <div class="stat"><strong>1,610</strong><span>영재교육기관</span></div>
-          <div class="stat-div"></div>
-          <div class="stat"><strong>1,644</strong><span>진로체험 프로그램</span></div>
-          <div class="stat-div"></div>
-          <div class="stat"><strong>17</strong><span>전국 시도</span></div>
+
+    <!-- 1. 헤더 -->
+    <div class="home-hero">
+      <span class="hero-badge">📊 공공데이터 기반 · 무료 서비스</span>
+      <h1 class="home-title">있는지도 몰랐던<br><em>기회</em>를 찾아드립니다</h1>
+      <p class="home-sub">AI가 직접 물어보며 나에게 맞는 영재원·진로체험을 찾아드려요</p>
+    </div>
+
+    <!-- 2. 지역격차 요약 -->
+    <div class="home-gap-section">
+      <div class="home-gap-stats">
+        <div class="home-stat-card">
+          <span class="home-stat-label">전국 영재교육기관</span>
+          <strong id="home-stat-total">—</strong>
+        </div>
+        <div class="home-stat-card home-stat-card--accent">
+          <span class="home-stat-label">최대 vs 최소</span>
+          <strong id="home-stat-gap">—</strong>
+        </div>
+        <div class="home-stat-card home-stat-card--red">
+          <span class="home-stat-label">지역 격차</span>
+          <strong id="home-stat-ratio">—</strong>
         </div>
       </div>
+      <div class="home-chart-box">
+        <canvas id="home-gap-chart"></canvas>
+      </div>
+      <div class="home-gap-footer">
+        <p class="home-gap-msg">✨ 이 격차를 AI가 좁혀드립니다</p>
+        <button class="btn-outline btn-sm" id="btn-detail-gap">자세히 보기 →</button>
+      </div>
+    </div>
 
+    <!-- 3. 구분선 -->
+    <hr class="home-divider">
+
+    <!-- 4. 기본정보 입력 폼 -->
+    <div class="home-form-wrap">
       <div class="form-card">
-        <h2 class="form-title">기본 정보 입력</h2>
+        <h2 class="form-title">내 기회 찾기</h2>
         <p class="form-sub">학교명을 입력하면 지역이 자동으로 채워져요</p>
         <form id="form-start">
           <div class="field">
@@ -94,6 +118,7 @@
         </form>
       </div>
     </div>
+
   </section>
 
   <!-- ── 화면 2: AI 상담 ─────────────────────────── -->
