@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 진로 큐레이터 — 나에게 맞는 기회를 찾아드립니다</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── 네비게이션 ─────────────────────────────── -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a class="logo" href="#" data-screen="home">🎯 진로큐레이터</a>
+      <div class="nav-links">
+        <a class="nav-link active" data-screen="home">홈</a>
+        <a class="nav-link" data-screen="chat">상담</a>
+        <a class="nav-link" data-screen="result">결과</a>
+        <a class="nav-link" data-screen="gap">지역격차</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── 화면 1: 홈 ─────────────────────────────── -->
+  <section id="screen-home" class="screen active">
+    <div class="hero">
+      <div class="hero-text">
+        <span class="hero-badge">📊 공공데이터 기반 · 무료 서비스</span>
+        <h1>있는지도 몰랐던<br><em>기회</em>를 찾아드립니다</h1>
+        <p class="hero-sub">AI가 직접 물어보며 나에게 맞는<br>영재원·진로체험을 찾아드려요</p>
+        <div class="hero-stats">
+          <div class="stat"><strong>1,610</strong><span>영재교육기관</span></div>
+          <div class="stat-div"></div>
+          <div class="stat"><strong>1,644</strong><span>진로체험 프로그램</span></div>
+          <div class="stat-div"></div>
+          <div class="stat"><strong>17</strong><span>전국 시도</span></div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-title">기본 정보 입력</h2>
+        <p class="form-sub">학교명을 입력하면 지역이 자동으로 채워져요</p>
+        <form id="form-start">
+          <div class="field">
+            <label for="school-input">학교명 <span class="opt">선택</span></label>
+            <div class="input-wrap">
+              <input type="text" id="school-input" placeholder="예: 경주중학교" autocomplete="off">
+              <span id="school-hint" class="hint"></span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="grade-select">학년</label>
+              <select id="grade-select" required>
+                <option value="">선택</option>
+                <option value="중1">중학교 1학년</option>
+                <option value="중2">중학교 2학년</option>
+                <option value="중3">중학교 3학년</option>
+                <option value="고1">고등학교 1학년</option>
+                <option value="고2">고등학교 2학년</option>
+                <option value="고3">고등학교 3학년</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="region-select">거주지역</label>
+              <select id="region-select" required>
+                <option value="">선택</option>
+                <option value="서울">서울</option>
+                <option value="부산">부산</option>
+                <option value="대구">대구</option>
+                <option value="인천">인천</option>
+                <option value="광주">광주</option>
+                <option value="대전">대전</option>
+                <option value="울산">울산</option>
+                <option value="세종">세종</option>
+                <option value="경기">경기</option>
+                <option value="강원">강원</option>
+                <option value="충북">충북</option>
+                <option value="충남">충남</option>
+                <option value="전북">전북</option>
+                <option value="전남">전남</option>
+                <option value="경북">경북</option>
+                <option value="경남">경남</option>
+                <option value="제주">제주</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary btn-lg">
+            AI 상담 시작하기 →
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 화면 2: AI 상담 ─────────────────────────── -->
+  <section id="screen-chat" class="screen">
+    <div class="chat-wrap">
+      <div class="chat-top">
+        <button class="btn-ghost" id="btn-back-chat">← 처음으로</button>
+        <span class="chat-label" id="chat-label">AI 진로 상담 중...</span>
+        <div style="width:80px"></div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="recommend-banner" id="recommend-banner">
+        <p class="banner-text">🎉 맞춤 기회를 찾았어요!</p>
+        <button class="btn-primary" id="btn-see-result">결과 보기 →</button>
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text" id="chat-input" placeholder="답변을 입력하세요..." autocomplete="off">
+        <button class="btn-send" id="btn-send" aria-label="전송">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 화면 3: 추천 결과 ───────────────────────── -->
+  <section id="screen-result" class="screen">
+    <div class="result-wrap">
+      <div class="result-hero">
+        <h2 id="result-title">기회를 찾았어요! 🎯</h2>
+        <p id="result-subtitle" class="result-sub"></p>
+      </div>
+
+      <!-- 영재교육기관 -->
+      <div class="result-section" id="section-gifted">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-icon">🏫</span>
+            <h3>영재교육기관</h3>
+            <span class="count-badge" id="gifted-count"></span>
+          </div>
+        </div>
+        <div class="cards" id="gifted-cards"></div>
+        <p class="data-note">📅 2023년 5월 기준 데이터 · 최신 모집일정은 각 기관 홈페이지에서 확인하세요</p>
+      </div>
+
+      <!-- 진로체험 -->
+      <div class="result-section" id="section-exp">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-icon">💼</span>
+            <h3>진로체험 프로그램</h3>
+            <span class="count-badge" id="exp-count"></span>
+          </div>
+        </div>
+        <div class="cards" id="exp-cards"></div>
+      </div>
+
+      <!-- 관련 직업 (커리어넷 실시간) -->
+      <div class="result-section" id="section-careers">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-icon">👔</span>
+            <h3>관련 직업</h3>
+            <span class="count-badge" id="career-count"></span>
+          </div>
+          <span class="api-badge">커리어넷 실시간</span>
+        </div>
+        <div class="cards" id="career-cards">
+          <div class="empty-msg">상담 완료 후 자동으로 불러옵니다.</div>
+        </div>
+      </div>
+
+      <!-- 관련 학과 (커리어넷 실시간) -->
+      <div class="result-section" id="section-majors">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-icon">🎓</span>
+            <h3>관련 학과</h3>
+            <span class="count-badge" id="major-count"></span>
+          </div>
+          <span class="api-badge">커리어넷 실시간</span>
+        </div>
+        <div class="cards" id="major-cards">
+          <div class="empty-msg">상담 완료 후 자동으로 불러옵니다.</div>
+        </div>
+      </div>
+
+      <!-- 집에서 해볼 수 있는 활동 -->
+      <div class="result-section home-activities-section" id="section-home-activities">
+        <div class="section-head">
+          <div class="section-head-left">
+            <span class="section-icon">🏠</span>
+            <h3>집에서도 시작할 수 있어요</h3>
+          </div>
+        </div>
+        <p class="home-activities-sub">거리나 비용 걱정 없이, 지금 당장 해볼 수 있는 활동들이에요</p>
+        <div id="home-activity-list"></div>
+      </div>
+
+      <!-- 하단 버튼 -->
+      <div class="result-actions">
+        <a href="https://www.career.go.kr/cnet/front/base/major/FunMajorList.do"
+           target="_blank" rel="noopener" class="btn-outline">
+          이 분야 관련 학과 더 알아보기 →
+        </a>
+        <button class="btn-secondary" id="btn-rechat">다시 상담하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 화면 4: 지역 격차 분석 ─────────────────── -->
+  <section id="screen-gap" class="screen">
+    <div class="gap-wrap">
+      <div class="gap-hero">
+        <span class="gap-kicker">왜 이 서비스가 필요한가</span>
+        <h2>영재교육 기회는<br>지역마다 다릅니다</h2>
+        <p class="gap-sub">같은 재능을 가져도 어디에 사느냐에 따라<br>접근할 수 있는 기회가 크게 다릅니다</p>
+      </div>
+      <div class="chart-box">
+        <canvas id="gap-chart"></canvas>
+      </div>
+      <div class="gap-insight" id="gap-insight"></div>
+      <div class="gap-actions">
+        <button class="btn-primary btn-lg" id="btn-to-home">지금 바로 내 기회 찾기 →</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
