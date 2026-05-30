@@ -336,7 +336,7 @@ select:focus {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
-  height: 280px;
+  height: 400px;
   margin-bottom: 14px;
 }
 .home-gap-footer {
