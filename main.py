@@ -75,13 +75,41 @@ class RecommendRequest(BaseModel):
 # ── 유틸 ──────────────────────────────────────────────────────────────────────
 
 def detect_interests(messages: list[Message]) -> list[str]:
-    # 전체 대화에서 사용자 메시지만 스캔 — 초반 턴 키워드 누락 방지
+    # 키워드 매칭 — 보조수단 (AI 분석 실패 시 fallback)
     text = " ".join(m.content for m in messages if m.role == "user")
     detected = []
     for keyword in INTEREST_MAP:
         if keyword in text and keyword not in detected:
             detected.append(keyword)
     return detected
+
+
+async def detect_interests_with_ai(messages: list[Message]) -> list[str]:
+    conversation = "\n".join(
+        f"{'학생' if m.role == 'user' else 'AI'}: {m.content}"
+        for m in messages
+    )
+    analysis_prompt = (
+        "아래 대화를 분석해서 학생의 관심분야를 다음 목록 중에서 1~3개 골라줘.\n"
+        "목록에 없으면 가장 가까운 걸로.\n"
+        '반드시 JSON 형식으로만 답해: {"interests": ["분야1", "분야2"]}\n\n'
+        "관심분야 목록:\n"
+        "수학, 과학, 컴퓨터, AI, 발명, 로봇, 미술, 음악, 영어,\n"
+        "인문, 체육, 태권도, 군인, 특전부사관, 코딩, 게임,\n"
+        "건축, 경제, 심리, 환경, 의학, 요리, 패션, 영상,\n"
+        "글쓰기, 천문, 스타트업, 사회문제, 문제해결, 생명과학\n\n"
+        f"대화 내용:\n{conversation}"
+    )
+    try:
+        resp = await async_client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            messages=[{"role": "user", "content": analysis_prompt}],
+        )
+        result = json.loads(resp.content[0].text)
+        return result.get("interests", [])
+    except Exception:
+        return []
 
 
 def grade_to_school_type(grade: str) -> str:
@@ -191,12 +219,16 @@ async def chat(req: ChatRequest):
     reply_text = response.content[0].text
 
     all_messages = list(req.messages) + [Message(role="assistant", content=reply_text)]
-    detected = detect_interests(all_messages)
-
     user_turn_count = sum(1 for m in req.messages if m.role == "user")
 
+    if user_turn_count >= 7:
+        ai_interests = await detect_interests_with_ai(all_messages)
+        detected = ai_interests if ai_interests else detect_interests(all_messages)
+    else:
+        detected = detect_interests(all_messages)
+
     auto_recommend = None
-    if detected and region and user_turn_count >= 5:
+    if detected and region and user_turn_count >= 7:
         auto_recommend = recommend(region, detected, grade_to_school_type(grade))
 
     return {
@@ -237,8 +269,13 @@ async def chat_stream(req: ChatRequest):
 
         reply_text = "".join(reply_parts)
         all_messages = list(req.messages) + [Message(role="assistant", content=reply_text)]
-        detected = detect_interests(all_messages)
         user_turn_count = sum(1 for m in req.messages if m.role == "user")
+
+        if user_turn_count >= 7:
+            ai_interests = await detect_interests_with_ai(all_messages)
+            detected = ai_interests if ai_interests else detect_interests(all_messages)
+        else:
+            detected = detect_interests(all_messages)
 
         auto_recommend = None
         if detected and region and user_turn_count >= 7:

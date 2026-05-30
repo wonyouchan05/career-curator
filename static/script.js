@@ -41,6 +41,9 @@ const CAREER_MAP = {
   스타트업:   ["창업가", "벤처투자가", "제품기획자", "비즈니스개발자", "마케터"],
   패션:       ["패션디자이너", "스타일리스트", "패션MD", "의류브랜드기획자", "패션에디터"],
   요리:       ["셰프", "푸드스타일리스트", "식품연구원", "영양사", "푸드크리에이터"],
+  태권도:     ["체육교사", "태권도사범", "스포츠트레이너", "무도지도자", "체육행정가"],
+  군인:       ["부사관", "장교", "군무원", "경호원", "소방관"],
+  특전부사관: ["특전부사관", "부사관", "경호원", "소방관", "경찰관"],
 };
 
 /* ── 관심분야별 집에서 할 수 있는 활동 ────────────────────── */
@@ -74,6 +77,9 @@ const HOME_ACTIVITIES = {
   글쓰기:     ["매일 짧은 글쓰기 연습 (일기, 수필, 단편)", "관심 주제로 블로그 시작하기", "좋아하는 작가의 문체 분석해서 따라 써보기"],
   인문:       ["고전 소설/철학 입문서 읽기", "역사 유튜브 채널 보고 느낀 점 기록", "관심 주제로 에세이 써보기"],
   사진:       ["스마트폰으로 사진 구도 연습 (3분할 법칙)", "무료 편집 앱(스냅시드)으로 보정 연습", "일상 사진 포트폴리오 만들기"],
+  태권도:     ["공인 품새 영상 보고 혼자 연습하기", "체력 기초훈련 루틴 만들기", "국군 체력측정 기준표로 목표 세우기"],
+  군인:       ["국군 체력측정 기준표로 현재 체력 점검", "부사관 선발 기준 공식 사이트에서 조사", "리더십 관련 책 읽기"],
+  특전부사관: ["특전사 공식 홈페이지에서 선발 기준 조사", "체력훈련 루틴 만들기", "국군 부사관학교 정보 찾아보기"],
 };
 
 /* ── DOM 참조 ──────────────────────────────────────────── */
@@ -356,6 +362,11 @@ function renderResults() {
 
   console.log('[renderResults] state.autoRecommend:', rec);
 
+  // region-note 초기화
+  const regionNoteEl = $('region-note');
+  regionNoteEl.style.display = 'none';
+  regionNoteEl.textContent = '';
+
   if (!rec) {
     $('result-title').textContent    = '상담을 먼저 진행해주세요 💬';
     $('result-subtitle').textContent = 'AI 상담을 7턴 이상 진행하면 맞춤 결과가 나타납니다.';
@@ -375,12 +386,36 @@ function renderResults() {
 
   const reasonText = `추천 근거: 관심분야 [${interests.join(', ')}] · 지역 [${region}]`;
 
+  // 지역 확장 안내
+  if (rec['지역확장안내']) {
+    regionNoteEl.textContent = '📍 ' + rec['지역확장안내'];
+    regionNoteEl.style.display = 'block';
+  }
+
   // 영재교육기관 카드
   const gifted = rec['영재교육기관'] || [];
-  $('gifted-count').textContent = gifted.length + '개';
-  $('gifted-cards').innerHTML = gifted.length
-    ? gifted.map(g => giftedCard(g, reasonText)).join('')
-    : '<div class="empty-msg">해당 지역·관심분야에 맞는 영재교육기관 정보가 없습니다.</div>';
+  const sectionGifted = $('section-gifted');
+  const sectionExp    = $('section-exp');
+  const sectionHome   = $('section-home-activities');
+
+  if (gifted.length < 2) {
+    $('gifted-count').textContent = gifted.length ? gifted.length + '개' : '';
+    $('gifted-cards').innerHTML =
+      '<div class="gifted-alt-msg">' +
+      '<span class="gifted-alt-icon">💡</span>' +
+      '<p>이 분야는 영재원보다 실전 활동이 더 중요해요!<br>' +
+      '아래 진로체험과 집에서 할 활동을 참고해보세요 😊</p>' +
+      '</div>';
+    sectionGifted.classList.add('section-muted');
+    sectionExp.classList.add('section-highlighted');
+    sectionHome.classList.add('section-highlighted');
+  } else {
+    $('gifted-count').textContent = gifted.length + '개';
+    $('gifted-cards').innerHTML = gifted.map(g => giftedCard(g, reasonText)).join('');
+    sectionGifted.classList.remove('section-muted');
+    sectionExp.classList.remove('section-highlighted');
+    sectionHome.classList.remove('section-highlighted');
+  }
 
   // 체험프로그램 카드
   const exps = rec['진로체험프로그램'] || [];
