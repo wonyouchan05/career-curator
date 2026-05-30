@@ -418,11 +418,29 @@ function renderResults() {
   }
 
   // 체험프로그램 카드
-  const exps = rec['진로체험프로그램'] || [];
-  $('exp-count').textContent = exps.length + '개';
-  $('exp-cards').innerHTML = exps.length
-    ? exps.map(x => expCard(x, reasonText)).join('')
-    : '<div class="empty-msg">해당 지역·관심분야에 맞는 체험프로그램 정보가 없습니다.</div>';
+  const exps        = rec['진로체험프로그램'] || [];
+  const expFallback = rec['체험확장안내'];
+
+  if (exps.length === 0) {
+    $('exp-count').textContent = '';
+    $('exp-cards').innerHTML =
+      '<div class="exp-alt-msg">' +
+        '<span class="exp-alt-icon">💡</span>' +
+        '<p>이 분야의 지역 체험프로그램 정보가 아직 부족해요 😊<br>' +
+        '아래 집에서 할 수 있는 활동과 커리어넷을 참고해보세요!</p>' +
+      '</div>';
+    sectionExp.classList.add('section-muted');
+    sectionHome.classList.add('section-highlighted');
+  } else {
+    $('exp-count').textContent = exps.length + '개';
+    let expHtml = exps.map(x => expCard(x, reasonText)).join('');
+    if (expFallback) {
+      expHtml = '<p class="exp-fallback-note">📡 지역 데이터 부족 — 전국 비대면 프로그램으로 대체</p>' + expHtml;
+    }
+    $('exp-cards').innerHTML = expHtml;
+    sectionExp.classList.remove('section-muted');
+    sectionHome.classList.remove('section-highlighted');
+  }
 }
 
 function giftedCard(g, reason) {

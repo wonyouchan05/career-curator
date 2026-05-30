@@ -168,7 +168,8 @@ def recommend_gifted(
 
 def recommend_experience(
     region: str, interests: list[str], grade: str, limit: int = 5
-) -> list[dict]:
+) -> tuple[list[dict], bool]:
+    """Returns (results, is_fallback). is_fallback=True 이면 전국 비대면 대체."""
     df = load_experience()
 
     if grade == "중학교":
@@ -176,47 +177,58 @@ def recommend_experience(
     elif grade == "고등학교":
         df = df[df["고등학교대상여부"] == "Y"]
 
+    def to_records(sub: pd.DataFrame, n: int) -> list[dict]:
+        out = []
+        for _, row in sub.head(n).iterrows():
+            attend_code = str(row.get("대면비대면구분", ""))
+            out.append({
+                "체험프로그램명": row["체험프로그램명"],
+                "체험처명":     row["체험처명"],
+                "직업유형":     row["체험프로그램 직업유형"],
+                "체험지역명":   row["체험지역명"],
+                "대면비대면구분": ATTENDANCE_MAP.get(attend_code, attend_code),
+                "유무료구분":   row.get("유무료구분", ""),
+            })
+        return out
+
     keywords = _job_keywords(interests)
     if keywords:
         kw_pattern = "|".join(keywords)
-        df = df[df["체험프로그램 직업유형"].str.contains(kw_pattern, case=False, na=False)]
+        filtered = df[df["체험프로그램 직업유형"].str.contains(kw_pattern, case=False, na=False)]
+    else:
+        filtered = df
 
-    region_mask = df["체험지역명"].str.contains(region, na=False)
-    regional = df[region_mask]
+    region_mask = filtered["체험지역명"].str.contains(region, na=False)
+    online_mask = filtered["대면비대면구분"].isin(["79002", "79003"])
+    combined = pd.concat([filtered[region_mask], filtered[online_mask & ~region_mask]]).drop_duplicates()
 
-    online_mask = df["대면비대면구분"].isin(["79002", "79003"])
-    online = df[online_mask & ~region_mask]
+    if not combined.empty:
+        return to_records(combined, limit), False
 
-    combined = pd.concat([regional, online]).drop_duplicates()
+    # fallback: 키워드 무관 전국 비대면 최대 3개
+    online_all = df[df["대면비대면구분"].isin(["79002", "79003"])].sample(frac=1, random_state=None)
+    if not online_all.empty:
+        return to_records(online_all, 3), True
 
-    results = []
-    for _, row in combined.head(limit).iterrows():
-        attend_code = str(row.get("대면비대면구분", ""))
-        results.append({
-            "체험프로그램명": row["체험프로그램명"],
-            "체험처명":     row["체험처명"],
-            "직업유형":     row["체험프로그램 직업유형"],
-            "체험지역명":   row["체험지역명"],
-            "대면비대면구분": ATTENDANCE_MAP.get(attend_code, attend_code),
-            "유무료구분":   row.get("유무료구분", ""),
-        })
-    return results
+    return [], False
 
 
 def recommend(region: str, interests: list[str], grade: str) -> dict:
-    gifted, region_note = recommend_gifted(region, interests)
-    experience = recommend_experience(region, interests, grade)
+    gifted, region_note   = recommend_gifted(region, interests)
+    experience, exp_fallback = recommend_experience(region, interests, grade)
     result: dict = {
-        "영재교육기관": gifted,
+        "영재교육기관":    gifted,
         "진로체험프로그램": experience,
         "데이터출처": {
             "영재교육기관": "한국교육개발원 전국영재교육기관현황 (2023.05.01 기준)",
-            "진로체험": "교육부 진로체험망 꿈길",
-            "안내": "최신 모집일정은 각 기관 홈페이지에서 확인하세요",
+            "진로체험":    "교육부 진로체험망 꿈길",
+            "안내":       "최신 모집일정은 각 기관 홈페이지에서 확인하세요",
         },
     }
     if region_note:
         result["지역확장안내"] = region_note
+    if exp_fallback:
+        result["체험확장안내"] = True
     return result
 
 
