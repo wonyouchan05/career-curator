@@ -364,9 +364,9 @@ function renderResults() {
   const sectionHome   = $('section-home-activities');
 
   // 특수 과학분야(화학/바이러스 등) → 과학계열로 안내하는 분야 감지
-  const SPECIFIC_SCIENCE = new Set(['화학', '바이러스', '생물', '물리', '지구과학', '나노', '우주', '반도체', '전자', '로봇공학']);
+  const SPECIFIC_SCIENCE  = new Set(['화학', '바이러스', '생물', '물리', '지구과학', '나노', '우주', '반도체', '전자', '로봇공학']);
   const specificInterests = interests.filter(i => SPECIFIC_SCIENCE.has(i));
-  const hasOnlySpecific   = specificInterests.length > 0 && interests.every(i => SPECIFIC_SCIENCE.has(i));
+  const hasOnlySpecific   = specificInterests.length > 0;
 
   if (gifted.length === 0) {
     $('gifted-count').textContent = '';
@@ -508,7 +508,6 @@ $('btn-rechat').addEventListener('click', () => showScreen('chat'));
 /* ── 학과·집에서 할 수 있는 활동 ──────────────────────────── */
 function renderMajorSection(keyword) {
   $('section-majors').style.display = '';
-  $('major-count').textContent = '';
   const url = keyword
     ? `https://www.career.go.kr/cnet/front/base/major/FunMajorList.do?searchKeyword=${encodeURIComponent(keyword)}`
     : 'https://www.career.go.kr/cnet/front/base/major/FunMajorList.do';

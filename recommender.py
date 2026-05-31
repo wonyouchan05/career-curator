@@ -161,7 +161,6 @@ def recommend_gifted(
             parts.append(f"전국 대학영재교육원 {univ_added}개")
         region_note = " + ".join(parts)
 
-    random.shuffle(results)
     return results, region_note
 
 
