@@ -327,7 +327,7 @@ function renderResults() {
   const region    = state.userInfo.region;
   const interests = state.detectedInterests;
 
-  console.log('[renderResults] state.autoRecommend:', rec);
+  console.log('[renderResults] autoRecommend:', !!rec, '| interests:', interests, '| HOME_ACTIVITIES keys sample:', Object.keys(HOME_ACTIVITIES).slice(0,5));
 
   // region-note 초기화
   const regionNoteEl = $('region-note');
@@ -351,8 +351,6 @@ function renderResults() {
       ? `관심분야 [${interests.join(', ')}] · 지역 [${region}] 기반 추천`
       : `지역 [${region}] 기반 추천`;
 
-  const reasonText = `추천 근거: 관심분야 [${interests.join(', ')}] · 지역 [${region}]`;
-
   // 지역 확장 안내
   if (rec['지역확장안내']) {
     regionNoteEl.textContent = '📍 ' + rec['지역확장안내'];
@@ -364,6 +362,11 @@ function renderResults() {
   const sectionGifted = $('section-gifted');
   const sectionExp    = $('section-exp');
   const sectionHome   = $('section-home-activities');
+
+  // 특수 과학분야(화학/바이러스 등) → 과학계열로 안내하는 분야 감지
+  const SPECIFIC_SCIENCE = new Set(['화학', '바이러스', '생물', '물리', '지구과학', '나노', '우주', '반도체', '전자', '로봇공학']);
+  const specificInterests = interests.filter(i => SPECIFIC_SCIENCE.has(i));
+  const hasOnlySpecific   = specificInterests.length > 0 && interests.every(i => SPECIFIC_SCIENCE.has(i));
 
   if (gifted.length === 0) {
     $('gifted-count').textContent = '';
@@ -379,7 +382,15 @@ function renderResults() {
   } else {
     $('gifted-count').textContent = gifted.length + '개';
     let giftedHtml = '';
-    if (gifted.length < 3) {
+    if (hasOnlySpecific) {
+      const label = specificInterests.join(', ');
+      giftedHtml =
+        '<div class="gap-notice">' +
+        '<span class="gap-notice-icon">⚠️</span>' +
+        '<div><strong>' + escHtml(label) + ' 전용 영재원은 없지만, 과학·융합 계열 기관을 안내해드려요.</strong>' +
+        '관련 역량을 키울 수 있는 가장 가까운 기회예요 😊</div>' +
+        '</div>';
+    } else if (gifted.length < 3) {
       const interestLabel = interests.join(', ') || '해당 분야';
       giftedHtml =
         '<div class="gap-notice">' +
@@ -388,7 +399,7 @@ function renderResults() {
         '전국 대학영재교육원을 함께 안내해드립니다.</div>' +
         '</div>';
     }
-    $('gifted-cards').innerHTML = giftedHtml + gifted.map(g => giftedCard(g, reasonText)).join('');
+    $('gifted-cards').innerHTML = giftedHtml + gifted.map(g => giftedCard(g)).join('');
     sectionGifted.classList.remove('section-muted');
     sectionExp.classList.remove('section-highlighted');
     sectionHome.classList.remove('section-highlighted');
@@ -421,13 +432,16 @@ function renderResults() {
         '대신 전국 비대면 프로그램을 안내해드릴게요.</div>' +
         '</div>';
     }
-    $('exp-cards').innerHTML = expHtml + exps.map(x => expCard(x, reasonText)).join('');
+    $('exp-cards').innerHTML = expHtml + exps.map(x => expCard(x)).join('');
     sectionExp.classList.remove('section-muted');
     sectionHome.classList.remove('section-highlighted');
   }
+
+  // 집에서 할 수 있는 활동 (renderResults에서도 직접 호출 — 이중 보장)
+  renderHomeActivities(interests);
 }
 
-function giftedCard(g, reason) {
+function giftedCard(g) {
   const typeClass = {
     '대학영재교육원':  'type-univ',
     '교육청영재교육원': 'type-edu',
@@ -457,11 +471,10 @@ function giftedCard(g, reason) {
       <div class="tags">${fields}</div>
       <div class="card-meta">${addr}</div>
       ${hpLink}
-      <div class="reason">${escHtml(reason)}</div>
     </div>`;
 }
 
-function expCard(x, reason) {
+function expCard(x) {
   const attend = x['대면비대면구분'] || '';
   const attendBadge = {
     '대면':      '<span class="badge badge-face">대면</span>',
@@ -487,7 +500,6 @@ function expCard(x, reason) {
         <span>🏢 ${escHtml(x['체험처명'])}</span>
         <span>📍 ${escHtml(x['체험지역명'])}</span>
       </div>
-      <div class="reason">${escHtml(reason)}</div>
     </div>`;
 }
 
@@ -512,6 +524,7 @@ function renderMajorSection(keyword) {
 }
 
 function renderHomeActivities(interests) {
+  console.log('[renderHomeActivities] interests:', interests);
   const DEFAULT = ["유튜브로 관심분야 강의 찾아보기", "관련 책 도서관에서 빌려 읽기", "관심분야 블로그/커뮤니티 찾아보기"];
   const seen = new Set();
   const activities = [];
@@ -531,6 +544,7 @@ function renderHomeActivities(interests) {
   }
 
   const display = activities.length ? activities : DEFAULT;
+  console.log('[renderHomeActivities] activities found:', display.length, display);
   $('home-activity-list').innerHTML = display.map(text =>
     `<div class="home-activity-item">
        <span class="home-activity-icon">✅</span>

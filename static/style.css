@@ -636,14 +636,6 @@ select:focus {
 .badge-paid    { background: #FEF3C7; color: #92400E; }
 .badge-etc     { background: var(--bg); color: var(--text-muted); }
 
-/* 추천 근거 */
-.reason {
-  font-size: 11.5px;
-  color: var(--indigo2);
-  background: var(--primary-lt);
-  padding: 5px 10px;
-  border-radius: var(--radius-sm);
-}
 
 /* 홈페이지 링크 */
 .link-hp {

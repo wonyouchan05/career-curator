@@ -95,10 +95,8 @@ def recommend_gifted(
     for r in [region] + expansion_used:
         univ_df = univ_df[~univ_df["시도"].str.contains(r, na=False)]
 
-    known_pat = "|".join(NATIONAL_UNIV_KEYWORDS)
-    known_mask = univ_df["기관명"].str.contains(known_pat, na=False)
-    # 유명 대학 우선, 각 그룹 내부 셔플
-    univ_rows = _shuffled_rows(univ_df[known_mask]) + _shuffled_rows(univ_df[~known_mask])
+    # 전국 대학 완전 랜덤 — 매번 다른 기관 노출
+    univ_rows = _shuffled_rows(univ_df)
 
     # ── 선택 로직 ───────────────────────────────────────────────────────────────
     seen_names: set[str] = set()
@@ -163,6 +161,7 @@ def recommend_gifted(
             parts.append(f"전국 대학영재교육원 {univ_added}개")
         region_note = " + ".join(parts)
 
+    random.shuffle(results)
     return results, region_note
 
 
