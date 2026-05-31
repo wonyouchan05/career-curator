@@ -198,7 +198,7 @@ def recommend_experience(
 
     region_mask = filtered["체험지역명"].str.contains(region, na=False)
     online_mask = filtered["대면비대면구분"].isin(["79002", "79003"])
-    combined = pd.concat([filtered[region_mask], filtered[online_mask & ~region_mask]]).drop_duplicates()
+    combined = pd.concat([filtered[region_mask], filtered[online_mask & ~region_mask]]).drop_duplicates(subset=["체험프로그램명"])
 
     if not combined.empty:
         return to_records(combined, limit), False
