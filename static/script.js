@@ -11,6 +11,42 @@ const state = {
   sending:           false,
 };
 
+/* ── 관심분야별 직업 목록 (CareerNet 매핑 없는 분야 fallback용) ── */
+const CAREER_MAP = {
+  수학:       ["수학교사", "통계학자", "데이터분석가", "보험계리사", "금융분석가"],
+  과학:       ["과학교사", "연구원", "화학자", "물리학자", "환경과학자"],
+  컴퓨터:     ["소프트웨어개발자", "앱개발자", "시스템엔지니어", "데이터분석가", "IT컨설턴트"],
+  AI:         ["AI연구원", "머신러닝엔지니어", "데이터사이언티스트", "AI서비스기획자", "로봇공학자"],
+  코딩:       ["소프트웨어개발자", "웹개발자", "앱개발자", "게임개발자", "보안전문가"],
+  게임:       ["게임개발자", "게임디자이너", "게임기획자", "3D모델러", "게임테스터"],
+  발명:       ["발명가", "특허전문가", "제품디자이너", "기계공학자", "창업가"],
+  문제해결:   ["사회적기업가", "정책기획자", "컨설턴트", "프로젝트매니저", "UX디자이너"],
+  사회문제:   ["사회복지사", "NGO활동가", "정책연구원", "사회적기업가", "공무원"],
+  사회문제해결:["사회적기업가", "AI정책연구원", "데이터기반정책가", "NGO활동가", "공공서비스기획자"],
+  인공지능사회:["AI윤리연구원", "AI정책기획자", "데이터사이언티스트", "사회혁신가", "AI서비스기획자"],
+  일상개선:   ["UX디자이너", "제품기획자", "사용자연구원", "서비스디자이너", "창업가"],
+  로봇:       ["로봇공학자", "자동화엔지니어", "AI연구원", "기계공학자", "드론전문가"],
+  미술:       ["그래픽디자이너", "일러스트레이터", "UI디자이너", "영상편집자", "아트디렉터"],
+  영상:       ["영상PD", "유튜브크리에이터", "영상편집자", "영화감독", "미디어기획자"],
+  음악:       ["음악가", "작곡가", "음향엔지니어", "음악교사", "뮤직프로듀서"],
+  영어:       ["번역가", "통역사", "외교관", "국제기구활동가", "영어교사"],
+  인문:       ["작가", "역사학자", "철학자", "사회학자", "저널리스트"],
+  글쓰기:     ["작가", "기자", "카피라이터", "콘텐츠크리에이터", "출판편집자"],
+  경제:       ["경제학자", "금융분석가", "투자전문가", "경영컨설턴트", "회계사"],
+  심리:       ["심리상담사", "임상심리사", "정신건강전문가", "HRD전문가", "코치"],
+  환경:       ["환경공학자", "기후과학자", "환경정책연구원", "지속가능경영전문가", "생태학자"],
+  의학:       ["의사", "간호사", "의생명과학자", "약사", "의료기기개발자"],
+  생명과학:   ["바이오연구원", "유전공학자", "제약연구원", "의생명과학자", "생물교사"],
+  천문:       ["천문학자", "우주과학자", "항공우주엔지니어", "NASA연구원", "물리학자"],
+  건축:       ["건축가", "인테리어디자이너", "도시계획가", "건설엔지니어", "조경설계사"],
+  체육:       ["스포츠트레이너", "체육교사", "스포츠에이전트", "운동처방사", "스포츠마케터"],
+  스타트업:   ["창업가", "벤처투자가", "제품기획자", "비즈니스개발자", "마케터"],
+  패션:       ["패션디자이너", "스타일리스트", "패션MD", "의류브랜드기획자", "패션에디터"],
+  요리:       ["셰프", "푸드스타일리스트", "식품연구원", "영양사", "푸드크리에이터"],
+  태권도:     ["체육교사", "태권도사범", "스포츠트레이너", "무도지도자", "체육행정가"],
+  군인:       ["부사관", "장교", "군무원", "경호원", "소방관"],
+  특전부사관: ["특전부사관", "부사관", "경호원", "소방관", "경찰관"],
+};
 
 /* ── 관심분야별 집에서 할 수 있는 활동 ────────────────────── */
 const HOME_ACTIVITIES = {
@@ -503,7 +539,7 @@ async function renderCareerSection(interests) {
   $('section-careers').style.display = '';
   $('career-count').textContent = '';
   $('career-cards').innerHTML =
-    '<div class="loading-block"><div class="spinner"></div><span>커리어넷 실시간 직업 정보 불러오는 중...</span></div>';
+    '<div class="loading-block"><div class="spinner"></div><span>직업 정보 불러오는 중...</span></div>';
 
   const keyword = interests[0];
   console.log(`[커리어넷] /careers?keyword=${keyword} 호출`);
@@ -514,38 +550,57 @@ async function renderCareerSection(interests) {
     const data = await res.json();
     const jobs = (data.jobs || []).slice(0, 6);
 
-    if (!jobs.length) throw new Error('결과 없음');
-
-    console.log(`[커리어넷] ${jobs.length}개 직업 수신:`, jobs.map(j => j.job));
-    $('career-count').textContent = jobs.length + '개';
-    $('career-cards').innerHTML =
-      jobs.map(job => `
-        <div class="card">
-          <div class="card-top">
-            <span class="card-title">👔 ${escHtml(job.job || '')}</span>
-            <span class="badge badge-realtime">커리어넷 실시간</span>
-          </div>
-          ${job.salery ? `<div class="card-meta"><span>💰 ${escHtml(job.salery)}</span></div>` : ''}
-          ${job.possibility ? `<div class="card-meta"><span>📈 전망: ${escHtml(job.possibility)}</span></div>` : ''}
-        </div>`).join('') +
-      `<a href="https://www.career.go.kr/cnet/front/base/job/jobList.do"
-          target="_blank" rel="noopener"
-          class="btn-outline career-more-link">
-         커리어넷에서 더 알아보기 →
-       </a>`;
+    if (jobs.length) {
+      // CareerNet 실시간 데이터
+      console.log(`[커리어넷] 실시간 ${jobs.length}개:`, jobs.map(j => j.job));
+      $('career-count').textContent = jobs.length + '개';
+      $('career-cards').innerHTML =
+        jobs.map(job => `
+          <div class="card">
+            <div class="card-top">
+              <span class="card-title">👔 ${escHtml(job.job || '')}</span>
+              <span class="badge badge-realtime">커리어넷 실시간</span>
+            </div>
+            ${job.salery    ? `<div class="card-meta"><span>💰 ${escHtml(job.salery)}</span></div>`           : ''}
+            ${job.possibility ? `<div class="card-meta"><span>📈 전망: ${escHtml(job.possibility)}</span></div>` : ''}
+          </div>`).join('') +
+        `<a href="https://www.career.go.kr/cnet/front/base/job/jobList.do"
+            target="_blank" rel="noopener" class="btn-outline career-more-link">
+           커리어넷에서 더 알아보기 →
+         </a>`;
+    } else {
+      // CareerNet 매핑 없는 분야 → CAREER_MAP fallback
+      renderCareerFallback(interests);
+    }
   } catch (err) {
-    console.warn(`[커리어넷] API 실패 (${err.message}) — 링크만 표시`);
-    $('career-count').textContent = '';
-    $('career-cards').innerHTML = `
-      <div class="card career-link-card">
-        <span class="card-title">🔍 커리어넷에서 직접 탐색하기</span>
-        ${keyword ? `<p class="card-desc">관심분야 [${escHtml(keyword)}] 관련 직업을 커리어넷에서 찾아보세요</p>` : ''}
-        <a href="https://www.career.go.kr/cnet/front/base/job/jobList.do"
-           target="_blank" rel="noopener" class="btn-outline" style="margin-top:8px;font-size:13px">
-           커리어넷에서 직접 탐색하기 →
-        </a>
-      </div>`;
+    console.warn(`[커리어넷] 오류 (${err.message}) — CAREER_MAP 사용`);
+    renderCareerFallback(interests);
   }
+}
+
+function renderCareerFallback(interests) {
+  const seen = new Set();
+  const jobs = [];
+  for (const interest of interests) {
+    for (const job of (CAREER_MAP[interest] || [])) {
+      if (!seen.has(job) && jobs.length < 6) { seen.add(job); jobs.push(job); }
+    }
+  }
+  if (!jobs.length) {
+    $('section-careers').style.display = 'none';
+    return;
+  }
+  console.log(`[커리어넷] CAREER_MAP fallback: ${jobs.length}개`);
+  $('career-count').textContent = jobs.length + '개';
+  $('career-cards').innerHTML =
+    jobs.map(job => `
+      <div class="card">
+        <span class="card-title">👔 ${escHtml(job)}</span>
+      </div>`).join('') +
+    `<a href="https://www.career.go.kr/cnet/front/base/job/jobList.do"
+        target="_blank" rel="noopener" class="btn-outline career-more-link">
+       커리어넷에서 더 알아보기 →
+     </a>`;
 }
 
 function renderMajorSection(keyword) {

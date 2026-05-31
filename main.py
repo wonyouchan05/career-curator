@@ -367,14 +367,14 @@ async def get_careers(keyword: str):
 
         if profession_hint:
             jobs = [j for j in all_jobs if profession_hint in (j.get("profession") or "")]
+            # profession 필터 후 결과 없으면 전체 상위 5개 fallback
+            if not jobs and all_jobs:
+                jobs = all_jobs[:5]
         else:
-            jobs = all_jobs[:8]
+            # profession_hint 없는 관심분야는 CareerNet 매핑 불가 → 프론트 CAREER_MAP 사용
+            jobs = []
 
-        # 필터 결과 없으면 전체 상위 5개 fallback
-        if not jobs and all_jobs:
-            jobs = all_jobs[:5]
-
-        return {"jobs": jobs[:8], "keyword": keyword}
+        return {"jobs": jobs[:8], "keyword": keyword, "has_hint": bool(profession_hint)}
     except Exception:
         return {"jobs": [], "keyword": keyword}
 
