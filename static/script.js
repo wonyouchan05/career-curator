@@ -529,33 +529,47 @@ function renderMajorSection(keyword) {
 }
 
 function renderHomeActivities(interests) {
-  console.log('[renderHomeActivities] interests:', interests);
-  const DEFAULT = ["유튜브로 관심분야 강의 찾아보기", "관련 책 도서관에서 빌려 읽기", "관심분야 블로그/커뮤니티 찾아보기"];
-  const seen = new Set();
-  const activities = [];
-  const maxTotal = 4;
-  const perInterest = interests.length === 1 ? 4 : 2;
+  const el = $('home-activity-list');
+  el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0">✨ AI가 맞춤 활동을 추천하는 중...</div>';
 
-  for (const interest of interests) {
-    let count = 0;
-    for (const act of (HOME_ACTIVITIES[interest] || [])) {
-      if (!seen.has(act) && count < perInterest && activities.length < maxTotal) {
-        seen.add(act);
-        activities.push(act);
-        count++;
+  fetch('/home-activities', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      interests,
+      messages: state.messages.slice(-10),
+      grade:  state.userInfo.grade,
+      region: state.userInfo.region,
+    }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      const acts = data.activities || [];
+      if (!acts.length) throw new Error('empty');
+      el.innerHTML = acts.map(text =>
+        `<div class="home-activity-item">
+           <span class="home-activity-icon">✅</span>
+           <span>${escHtml(text)}</span>
+         </div>`
+      ).join('');
+    })
+    .catch(() => {
+      // API 실패 시 HOME_ACTIVITIES 하드코딩 fallback
+      const DEFAULT = ["유튜브로 관심분야 강의 찾아보기", "관련 책 도서관에서 빌려 읽기", "관심분야 블로그/커뮤니티 찾아보기"];
+      const seen = new Set(); const acts = [];
+      for (const i of interests) {
+        for (const a of (HOME_ACTIVITIES[i] || [])) {
+          if (!seen.has(a) && acts.length < 4) { seen.add(a); acts.push(a); }
+        }
       }
-    }
-    if (activities.length >= maxTotal) break;
-  }
-
-  const display = activities.length ? activities : DEFAULT;
-  console.log('[renderHomeActivities] activities found:', display.length, display);
-  $('home-activity-list').innerHTML = display.map(text =>
-    `<div class="home-activity-item">
-       <span class="home-activity-icon">✅</span>
-       <span>${escHtml(text)}</span>
-     </div>`
-  ).join('');
+      const display = acts.length ? acts : DEFAULT;
+      el.innerHTML = display.map(text =>
+        `<div class="home-activity-item">
+           <span class="home-activity-icon">✅</span>
+           <span>${escHtml(text)}</span>
+         </div>`
+      ).join('');
+    });
 }
 
 /* ── 화면1: 홈 지역격차 요약 ──────────────────────────────────── */

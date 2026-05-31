@@ -390,6 +390,39 @@ async def get_careers(keyword: str):
         return {"jobs": [], "keyword": keyword}
 
 
+class HomeActivitiesRequest(BaseModel):
+    interests: list[str]
+    messages:  list[Message]
+    grade:     str = ""
+    region:    str = ""
+
+
+@app.post("/home-activities")
+async def get_home_activities(req: HomeActivitiesRequest):
+    conversation = "\n".join(
+        f"{'학생' if m.role == 'user' else 'AI'}: {m.content}"
+        for m in req.messages[-10:]  # 최근 10개만
+    )
+    prompt = (
+        f"학생 정보: {req.grade}, {req.region}\n"
+        f"관심분야: {', '.join(req.interests)}\n\n"
+        f"대화 내용:\n{conversation}\n\n"
+        "위 학생이 지금 당장 집에서 할 수 있는 구체적인 활동 4가지를 제안해줘.\n"
+        "조건: 무료 또는 저비용, 인터넷/집에서 가능, 관심분야에 직접 연결, 구체적인 도구/웹사이트/방법 포함.\n"
+        '반드시 JSON만: {"activities": ["활동1", "활동2", "활동3", "활동4"]}'
+    )
+    try:
+        resp = await async_client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        result = json.loads(resp.content[0].text)
+        return {"activities": result.get("activities", [])}
+    except Exception:
+        return {"activities": []}
+
+
 @app.get("/majors")
 async def get_majors(keyword: str):
     # MAJOR API는 현재 API 키로 데이터 반환 안 됨 → 커리어넷 링크 URL만 제공

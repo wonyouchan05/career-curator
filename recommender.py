@@ -201,7 +201,27 @@ def recommend_experience(
     combined = pd.concat([filtered[region_mask], filtered[online_mask & ~region_mask]]).drop_duplicates(subset=["체험프로그램명"])
 
     if not combined.empty:
-        return to_records(combined, limit), False
+        results = to_records(combined, limit)
+        # 3개 미만이면 같은 지역 비키워드 프로그램으로 보충
+        if len(results) < 3:
+            seen = {r["체험프로그램명"] for r in results}
+            region_df = df[df["체험지역명"].str.contains(region, na=False)].sample(frac=1, random_state=None)
+            for _, row in region_df.iterrows():
+                if len(results) >= limit:
+                    break
+                name = str(row.get("체험프로그램명", ""))
+                if name not in seen:
+                    seen.add(name)
+                    attend_code = str(row.get("대면비대면구분", ""))
+                    results.append({
+                        "체험프로그램명": row["체험프로그램명"],
+                        "체험처명":     row["체험처명"],
+                        "직업유형":     row["체험프로그램 직업유형"],
+                        "체험지역명":   row["체험지역명"],
+                        "대면비대면구분": ATTENDANCE_MAP.get(attend_code, attend_code),
+                        "유무료구분":   row.get("유무료구분", ""),
+                    })
+        return results, False
 
     # fallback: 키워드 무관 전국 비대면 최대 3개
     online_all = df[df["대면비대면구분"].isin(["79002", "79003"])].sample(frac=1, random_state=None)
