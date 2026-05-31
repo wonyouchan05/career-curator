@@ -11,77 +11,48 @@ const state = {
   sending:           false,
 };
 
-/* ── 관심분야별 직업 목록 (CareerNet 매핑 없는 분야 fallback용) ── */
-const CAREER_MAP = {
-  수학:       ["수학교사", "통계학자", "데이터분석가", "보험계리사", "금융분석가"],
-  과학:       ["과학교사", "연구원", "화학자", "물리학자", "환경과학자"],
-  컴퓨터:     ["소프트웨어개발자", "앱개발자", "시스템엔지니어", "데이터분석가", "IT컨설턴트"],
-  AI:         ["AI연구원", "머신러닝엔지니어", "데이터사이언티스트", "AI서비스기획자", "로봇공학자"],
-  코딩:       ["소프트웨어개발자", "웹개발자", "앱개발자", "게임개발자", "보안전문가"],
-  게임:       ["게임개발자", "게임디자이너", "게임기획자", "3D모델러", "게임테스터"],
-  발명:       ["발명가", "특허전문가", "제품디자이너", "기계공학자", "창업가"],
-  문제해결:   ["사회적기업가", "정책기획자", "컨설턴트", "프로젝트매니저", "UX디자이너"],
-  사회문제:   ["사회복지사", "NGO활동가", "정책연구원", "사회적기업가", "공무원"],
-  사회문제해결:["사회적기업가", "AI정책연구원", "데이터기반정책가", "NGO활동가", "공공서비스기획자"],
-  인공지능사회:["AI윤리연구원", "AI정책기획자", "데이터사이언티스트", "사회혁신가", "AI서비스기획자"],
-  일상개선:   ["UX디자이너", "제품기획자", "사용자연구원", "서비스디자이너", "창업가"],
-  로봇:       ["로봇공학자", "자동화엔지니어", "AI연구원", "기계공학자", "드론전문가"],
-  미술:       ["그래픽디자이너", "일러스트레이터", "UI디자이너", "영상편집자", "아트디렉터"],
-  영상:       ["영상PD", "유튜브크리에이터", "영상편집자", "영화감독", "미디어기획자"],
-  음악:       ["음악가", "작곡가", "음향엔지니어", "음악교사", "뮤직프로듀서"],
-  영어:       ["번역가", "통역사", "외교관", "국제기구활동가", "영어교사"],
-  인문:       ["작가", "역사학자", "철학자", "사회학자", "저널리스트"],
-  글쓰기:     ["작가", "기자", "카피라이터", "콘텐츠크리에이터", "출판편집자"],
-  경제:       ["경제학자", "금융분석가", "투자전문가", "경영컨설턴트", "회계사"],
-  심리:       ["심리상담사", "임상심리사", "정신건강전문가", "HRD전문가", "코치"],
-  환경:       ["환경공학자", "기후과학자", "환경정책연구원", "지속가능경영전문가", "생태학자"],
-  의학:       ["의사", "간호사", "의생명과학자", "약사", "의료기기개발자"],
-  생명과학:   ["바이오연구원", "유전공학자", "제약연구원", "의생명과학자", "생물교사"],
-  천문:       ["천문학자", "우주과학자", "항공우주엔지니어", "NASA연구원", "물리학자"],
-  건축:       ["건축가", "인테리어디자이너", "도시계획가", "건설엔지니어", "조경설계사"],
-  체육:       ["스포츠트레이너", "체육교사", "스포츠에이전트", "운동처방사", "스포츠마케터"],
-  스타트업:   ["창업가", "벤처투자가", "제품기획자", "비즈니스개발자", "마케터"],
-  패션:       ["패션디자이너", "스타일리스트", "패션MD", "의류브랜드기획자", "패션에디터"],
-  요리:       ["셰프", "푸드스타일리스트", "식품연구원", "영양사", "푸드크리에이터"],
-  태권도:     ["체육교사", "태권도사범", "스포츠트레이너", "무도지도자", "체육행정가"],
-  군인:       ["부사관", "장교", "군무원", "경호원", "소방관"],
-  특전부사관: ["특전부사관", "부사관", "경호원", "소방관", "경찰관"],
-};
-
 /* ── 관심분야별 집에서 할 수 있는 활동 ────────────────────── */
 const HOME_ACTIVITIES = {
   수학:       ["칸아카데미(khanacademy.org)로 수학 무료 학습", "수학올림피아드 기출문제 풀어보기", "엑셀로 데이터 통계 분석해보기"],
-  과학:       ["집에서 할 수 있는 과학실험 키트 구매 (산화환원, 전기분해 등)", "유튜브 '과학쿠키' 채널로 개념 탐구", "국립과천과학관 온라인 콘텐츠 활용"],
-  컴퓨터:     ["파이썬 설치하고 코딩 시작 (점프투파이썬 무료)", "scratch.mit.edu에서 게임 만들어보기", "앱인벤터로 간단한 앱 만들기"],
-  AI:         ["구글 티처블머신으로 AI 모델 만들어보기 (teachablemachine.withgoogle.com)", "ChatGPT로 간단한 챗봇 아이디어 실험하기", "캐글(kaggle.com) 입문 튜토리얼 따라하기"],
-  코딩:       ["파이썬 설치하고 점프투파이썬으로 무료 학습", "백준 온라인 저지(boj.kr)에서 문제 풀기", "깃허브 계정 만들고 포트폴리오 시작"],
-  게임:       ["유니티(Unity) 무료 버전으로 게임 개발 입문", "RPG메이커 체험판으로 게임 기획", "게임기획서 직접 써보기 (종이로도 OK)"],
-  발명:       ["아두이노 스타터 키트로 LED/센서 실험", "레고로 메커니즘 설계해보기", "생활 속 불편한 점 찾아서 해결 아이디어 스케치"],
-  문제해결:   ["주변 불편함 찾아서 해결책 아이디어 노트 만들기", "디자인씽킹 방법론으로 문제 정의해보기", "아두이노로 생활 불편 해결 프로토타입 만들기"],
-  사회문제:   ["사회문제 관련 TED 강연 보고 느낀 점 기록", "주변 사회문제 찾아서 해결책 아이디어 정리", "사회적기업 사례 조사하고 비즈니스모델 분석"],
-  사회문제해결:["생활 속 불편함을 AI로 해결하는 아이디어 기획해보기", "구글 티처블머신으로 사회문제 해결 AI 모델 실험", "마이크로소프트 AI for Good 사례 조사"],
-  인공지능사회:["AI 윤리 관련 책 읽기 (AI 지도 원리 등)", "구글 티처블머신으로 이미지 분류 AI 만들기", "AI가 사회에 미치는 영향 에세이 써보기"],
-  미술:       ["클립스튜디오 체험판으로 디지털 드로잉 시작", "유튜브로 수채화/펜화 따라 그리기", "캔바(canva.com)로 포스터 디자인 해보기"],
-  영상:       ["다빈치 리졸브(무료)로 영상 편집 배우기", "스마트폰으로 단편영상 촬영/편집해보기", "유튜브 채널 만들어서 관심분야 영상 올리기"],
-  음악:       ["개러지밴드(Mac/iPad 무료)로 작곡 입문", "유튜브로 기타/피아노 독학 시작", "무료 악보 사이트에서 연주 연습"],
-  영어:       ["듀오링고로 매일 10분 영어 학습", "영어 유튜브 채널 자막 없이 듣기 도전", "영어로 일기 쓰기 (ChatGPT에게 첨삭 받기)"],
+  과학:       ["집에서 할 수 있는 과학실험 키트 구매", "유튜브 과학쿠키 채널로 개념 탐구", "국립과천과학관 온라인 콘텐츠 활용"],
+  화학:       ["화학실험 키트로 산화환원 실험", "유튜브로 화학 반응 원리 탐구", "주기율표 암기 챌린지"],
+  바이러스:   ["유튜브로 바이러스/면역 원리 공부", "생명과학 교과서 심화 탐구", "현미경 키트로 세포 관찰"],
+  생명과학:   ["현미경 키트로 세포/미생물 관찰 실험", "유튜브 과학쿠키 생명과학 탐구", "바이오 관련 책 읽기"],
+  생물:       ["현미경 키트로 생물 관찰 실험", "식물 키우면서 성장 일지 쓰기", "유튜브로 생물 개념 탐구"],
+  물리:       ["아두이노로 전기/자기 실험", "유튜브로 물리 개념 시각화 탐구", "집에서 간단한 역학 실험"],
+  컴퓨터:     ["파이썬 설치하고 코딩 시작(점프투파이썬 무료)", "scratch.mit.edu에서 게임 만들기", "앱인벤터로 간단한 앱 만들기"],
+  AI:         ["구글 티처블머신으로 AI 모델 만들기(teachablemachine.withgoogle.com)", "ChatGPT API로 간단한 챗봇 만들기", "캐글(kaggle.com) 입문 튜토리얼"],
+  코딩:       ["파이썬 설치하고 점프투파이썬 무료 학습", "백준 온라인 저지(boj.kr)에서 문제 풀기", "깃허브 계정 만들고 포트폴리오 시작"],
+  게임:       ["유니티 무료 버전으로 게임 개발 입문", "RPG메이커 체험판으로 게임 기획", "게임기획서 직접 써보기"],
+  발명:       ["아두이노 스타터 키트로 LED/센서 실험", "레고로 메커니즘 설계", "생활 속 불편한 점 찾아서 해결 아이디어 스케치"],
+  문제해결:   ["주변 불편함 찾아서 해결책 노트 만들기", "디자인씽킹으로 문제 정의해보기", "아두이노로 생활 불편 해결 프로토타입"],
+  사회문제:   ["사회문제 TED 강연 보고 느낀 점 기록", "사회적기업 사례 조사하기", "주변 사회문제 해결책 아이디어 정리"],
+  미술:       ["클립스튜디오 체험판으로 디지털 드로잉", "유튜브로 수채화/펜화 따라 그리기", "캔바(canva.com)로 포스터 디자인"],
+  영상:       ["다빈치 리졸브(무료)로 영상 편집 배우기", "스마트폰으로 단편영상 촬영/편집", "유튜브 채널 만들어서 관심분야 영상 올리기"],
+  음악:       ["개러지밴드(무료)로 작곡 입문", "유튜브로 기타/피아노 독학 시작", "무료 악보 사이트에서 연주 연습"],
+  영어:       ["듀오링고로 매일 10분 영어 학습", "영어 유튜브 자막 없이 듣기 도전", "영어로 일기 쓰고 ChatGPT에게 첨삭 받기"],
   환경:       ["집에서 탄소발자국 계산해보기", "텃밭 가꾸기 또는 식물 키우기 실험", "재활용 소재로 업사이클링 작품 만들기"],
-  의학:       ["유튜브 '의학채널 비온뒤' 시청", "응급처치 유튜브 강의 보고 심폐소생술 배우기", "현미경 키트로 세포 관찰 실험"],
-  생명과학:   ["현미경 키트로 직접 세포 관찰하기", "유튜브 생명과학 채널로 개념 탐구", "집에서 식물 성장 실험 기록하기"],
-  천문:       ["스텔라리움(stellarium.org) 무료 앱으로 별 관찰", "NASA 홈페이지에서 우주 사진 탐구", "망원경 없이 맨눈으로 행성 관찰 도전"],
-  체육:       ["유튜브로 홈트레이닝 루틴 만들기", "스포츠 경기 분석 일지 쓰기", "줄넘기/요가 등 실내 스포츠 루틴 개발"],
-  경제:       ["용돈 가계부 앱으로 재무관리 시작", "모의 주식투자 앱으로 경제 공부", "유튜브 '슈카월드' 보고 경제 개념 정리"],
-  심리:       ["MBTI/DISC 검사 무료로 해보고 결과 분석", "마음챙김 명상 앱(마보, 코끼리) 시도", "심리학 입문책 읽기 (청소년용 심리학)"],
-  건축:       ["스케치업(무료)으로 3D 건물 설계 입문", "레고로 건축물 만들고 설계도 그려보기", "유명 건축물 사진 수집 후 분석 일지 쓰기"],
-  스타트업:   ["린 캔버스로 나만의 창업 아이디어 정리", "네이버 블로그/인스타로 관심분야 콘텐츠 만들기", "학교 창업동아리 또는 비즈쿨 프로그램 참여"],
-  패션:       ["클로버추얼 패션 앱으로 스타일링 연습", "좋아하는 패션 브랜드 분석 일지 쓰기", "손바느질로 간단한 패치워크 만들기"],
-  요리:       ["유튜브로 간단한 요리 레시피 따라 만들기", "나만의 레시피 노트 만들기", "식재료 원산지/영양성분 공부하기"],
-  글쓰기:     ["매일 짧은 글쓰기 연습 (일기, 수필, 단편)", "관심 주제로 블로그 시작하기", "좋아하는 작가의 문체 분석해서 따라 써보기"],
-  인문:       ["고전 소설/철학 입문서 읽기", "역사 유튜브 채널 보고 느낀 점 기록", "관심 주제로 에세이 써보기"],
-  사진:       ["스마트폰으로 사진 구도 연습 (3분할 법칙)", "무료 편집 앱(스냅시드)으로 보정 연습", "일상 사진 포트폴리오 만들기"],
-  태권도:     ["공인 품새 영상 보고 혼자 연습하기", "체력 기초훈련 루틴 만들기", "국군 체력측정 기준표로 목표 세우기"],
-  군인:       ["국군 체력측정 기준표로 현재 체력 점검", "부사관 선발 기준 공식 사이트에서 조사", "리더십 관련 책 읽기"],
+  의학:       ["생명과학 유튜브 '의학채널 비온뒤' 시청", "응급처치 유튜브 보고 심폐소생술 배우기", "현미경 키트로 세포 관찰 실험"],
+  천문:       ["스텔라리움(stellarium.org) 무료 별자리 앱으로 별 관찰", "NASA 홈페이지에서 우주 사진 탐구", "망원경 없이 맨눈으로 행성 관찰"],
+  우주:       ["스텔라리움으로 별자리 관찰", "NASA 유튜브 채널 탐구", "종이로 태양계 모형 만들기"],
+  반도체:     ["아두이노로 전자회로 실험", "유튜브로 반도체 원리 탐구", "전자 키트로 간단한 회로 만들기"],
+  전자:       ["아두이노 스타터 키트로 전자회로 입문", "유튜브로 전자공학 기초 탐구", "브레드보드로 LED 회로 만들기"],
+  로봇공학:   ["아두이노 스타터 키트로 로봇 제작 입문", "레고 마인드스톰으로 로봇 프로그래밍", "유튜브로 로봇공학 기초 탐구"],
+  체육:       ["유튜브로 홈트레이닝 루틴 만들기", "스포츠 경기 분석 일지 쓰기", "줄넘기/요가 실내 스포츠 루틴 개발"],
+  태권도:     ["공인 품새 영상 보고 혼자 연습", "체력 기초훈련 루틴 만들기", "국군 체력측정 기준표로 목표 세우기"],
+  군인:       ["국군 체력측정 기준표로 체력 점검", "부사관 선발 기준 공식 사이트 조사", "리더십 관련 책 읽기"],
   특전부사관: ["특전사 공식 홈페이지에서 선발 기준 조사", "체력훈련 루틴 만들기", "국군 부사관학교 정보 찾아보기"],
+  경제:       ["용돈 가계부 앱으로 재무관리 시작", "모의 주식투자 앱으로 경제 공부", "경제 유튜브 슈카월드 보고 경제 개념 정리"],
+  심리:       ["MBTI/DISC 검사 무료로 해보기", "마음챙김 명상 앱(마보, 코끼리) 시도", "심리학 입문책 읽기"],
+  스타트업:   ["린 캔버스로 창업 아이디어 정리", "네이버 블로그/인스타로 콘텐츠 만들기", "학교 창업동아리 참여"],
+  패션:       ["캔바로 패션 무드보드 만들기", "유튜브로 옷 리폼/DIY 따라하기", "패션 트렌드 분석 일지 쓰기"],
+  요리:       ["유튜브 따라 요리 만들어보기", "나만의 레시피 노트 만들기", "집에서 베이킹 도전"],
+  건축:       ["스케치업(무료)으로 3D 건물 설계해보기", "레고로 건축물 모형 만들기", "유명 건축물 스케치 따라 그리기"],
+  글쓰기:     ["매일 일기 또는 단편 소설 쓰기", "브런치 계정 만들어서 글 올리기", "독후감 쓰고 블로그에 올리기"],
+  인문:       ["고전 소설/철학 입문서 읽기", "역사 유튜브 채널 보고 느낀 점 기록", "관심 주제로 에세이 써보기"],
+  사진:       ["스마트폰으로 사진 구도 연습(3분할 법칙)", "무료 편집 앱(스냅시드)으로 보정 연습", "일상 사진 포트폴리오 만들기"],
+  사회문제해결:["생활 속 불편함을 AI로 해결하는 아이디어 기획해보기", "구글 티처블머신으로 사회문제 해결 AI 모델 실험", "마이크로소프트 AI for Good 사례 조사"],
+  인공지능사회:["AI 윤리 관련 책 읽기", "구글 티처블머신으로 이미지 분류 AI 만들기", "AI가 사회에 미치는 영향 에세이 써보기"],
 };
 
 /* ── DOM 참조 ──────────────────────────────────────────── */
@@ -149,13 +120,7 @@ $('form-start').addEventListener('submit', e => {
   $('chat-label').textContent = `${region} · ${grade} AI 상담`;
   $('messages').innerHTML = '';
   $('recommend-banner').classList.remove('show');
-  // 커리어넷 섹션 초기화
-  $('section-careers').style.display = '';
-  $('section-majors').style.display  = '';
-  $('career-cards').innerHTML = '<div class="empty-msg">상담 완료 후 자동으로 불러옵니다.</div>';
-  $('major-cards').innerHTML  = '<div class="empty-msg">상담 완료 후 자동으로 불러옵니다.</div>';
-  $('career-count').textContent = '';
-  $('major-count').textContent  = '';
+  $('major-cards').innerHTML = '<div class="empty-msg">상담 완료 후 자동으로 불러옵니다.</div>';
   initChat();
 });
 
@@ -352,7 +317,6 @@ $('btn-back-chat').addEventListener('click', () => showScreen('home'));
 $('btn-see-result').addEventListener('click', () => {
   renderResults();
   showScreen('result');
-  renderCareerSection(state.detectedInterests);
   renderMajorSection(state.detectedInterests[0] || '');
   renderHomeActivities(state.detectedInterests);
 });
@@ -529,89 +493,7 @@ function expCard(x, reason) {
 
 $('btn-rechat').addEventListener('click', () => showScreen('chat'));
 
-/* ── 직업·학과·집에서 할 수 있는 활동 ──────────────────────── */
-async function renderCareerSection(interests) {
-  if (!interests.length) {
-    $('section-careers').style.display = 'none';
-    return;
-  }
-
-  $('section-careers').style.display = '';
-  $('career-count').textContent = '';
-  $('career-cards').innerHTML =
-    '<div class="loading-block"><div class="spinner"></div><span>직업 정보 불러오는 중...</span></div>';
-
-  const keyword = interests[0];
-  console.log(`[커리어넷] /careers?keyword=${keyword} 호출`);
-
-  try {
-    const res = await fetch(`/careers?keyword=${encodeURIComponent(keyword)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const jobs = (data.jobs || []).slice(0, 6);
-
-    if (jobs.length) {
-      // is_partial: API 결과 3개 미만 → CAREER_MAP으로 보완
-      const badgeLabel = data.is_partial ? '커리어넷 참고' : '커리어넷 실시간';
-      const badgeClass = data.is_partial ? 'badge-ref'     : 'badge-realtime';
-
-      let allJobs = [...jobs];
-      if (data.is_partial) {
-        const mapJobs = (CAREER_MAP[keyword] || []).filter(n => !jobs.some(j => j.job === n));
-        mapJobs.slice(0, 6 - jobs.length).forEach(n => allJobs.push({ job: n, _map: true }));
-      }
-
-      console.log(`[커리어넷] ${data.is_partial ? '참고(보완)' : '실시간'} ${allJobs.length}개:`, allJobs.map(j => j.job));
-      $('career-count').textContent = allJobs.length + '개';
-      $('career-cards').innerHTML =
-        allJobs.map(job => `
-          <div class="card">
-            <div class="card-top">
-              <span class="card-title">👔 ${escHtml(job.job || '')}</span>
-              ${!job._map ? `<span class="badge ${badgeClass}">${badgeLabel}</span>` : ''}
-            </div>
-            ${job.salery    ? `<div class="card-meta"><span>💰 ${escHtml(job.salery)}</span></div>`           : ''}
-            ${job.possibility ? `<div class="card-meta"><span>📈 전망: ${escHtml(job.possibility)}</span></div>` : ''}
-          </div>`).join('') +
-        `<a href="https://www.career.go.kr/cnet/front/base/job/jobList.do"
-            target="_blank" rel="noopener" class="btn-outline career-more-link">
-           커리어넷에서 더 알아보기 →
-         </a>`;
-    } else {
-      // CareerNet 매핑 없는 분야 → CAREER_MAP fallback
-      renderCareerFallback(interests);
-    }
-  } catch (err) {
-    console.warn(`[커리어넷] 오류 (${err.message}) — CAREER_MAP 사용`);
-    renderCareerFallback(interests);
-  }
-}
-
-function renderCareerFallback(interests) {
-  const seen = new Set();
-  const jobs = [];
-  for (const interest of interests) {
-    for (const job of (CAREER_MAP[interest] || [])) {
-      if (!seen.has(job) && jobs.length < 6) { seen.add(job); jobs.push(job); }
-    }
-  }
-  if (!jobs.length) {
-    $('section-careers').style.display = 'none';
-    return;
-  }
-  console.log(`[커리어넷] CAREER_MAP fallback: ${jobs.length}개`);
-  $('career-count').textContent = jobs.length + '개';
-  $('career-cards').innerHTML =
-    jobs.map(job => `
-      <div class="card">
-        <span class="card-title">👔 ${escHtml(job)}</span>
-      </div>`).join('') +
-    `<a href="https://www.career.go.kr/cnet/front/base/job/jobList.do"
-        target="_blank" rel="noopener" class="btn-outline career-more-link">
-       커리어넷에서 더 알아보기 →
-     </a>`;
-}
-
+/* ── 학과·집에서 할 수 있는 활동 ──────────────────────────── */
 function renderMajorSection(keyword) {
   $('section-majors').style.display = '';
   $('major-count').textContent = '';
@@ -633,18 +515,19 @@ function renderHomeActivities(interests) {
   const DEFAULT = ["유튜브로 관심분야 강의 찾아보기", "관련 책 도서관에서 빌려 읽기", "관심분야 블로그/커뮤니티 찾아보기"];
   const seen = new Set();
   const activities = [];
-  const perInterest = interests.length === 1 ? 3 : 2;
+  const maxTotal = 4;
+  const perInterest = interests.length === 1 ? 4 : 2;
 
   for (const interest of interests) {
     let count = 0;
     for (const act of (HOME_ACTIVITIES[interest] || [])) {
-      if (!seen.has(act) && count < perInterest && activities.length < 3) {
+      if (!seen.has(act) && count < perInterest && activities.length < maxTotal) {
         seen.add(act);
         activities.push(act);
         count++;
       }
     }
-    if (activities.length >= 3) break;
+    if (activities.length >= maxTotal) break;
   }
 
   const display = activities.length ? activities : DEFAULT;

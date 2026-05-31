@@ -737,30 +737,6 @@ select:focus {
 .gap-notice div  { font-size: 13.5px; color: #7C2D12; line-height: 1.65; }
 .gap-notice strong { font-weight: 600; display: block; margin-bottom: 2px; }
 
-/* 커리어넷 실시간 데이터 배지 */
-.badge-realtime {
-  background: #ECFDF5;
-  color: #065F46;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 999px;
-  border: 1px solid #A7F3D0;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-/* 커리어넷 참고(보완) 배지 */
-.badge-ref {
-  background: #EFF6FF;
-  color: #1D4ED8;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 999px;
-  border: 1px solid #BFDBFE;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 
 .section-highlighted .section-head h3 {
   color: var(--primary);
@@ -788,14 +764,6 @@ select:focus {
 }
 
 .career-link-card { border: 1.5px dashed var(--border); background: var(--bg); }
-
-/* 직업 더보기 링크 */
-.career-more-link {
-  grid-column: 1 / -1;
-  justify-self: start;
-  margin-top: 4px;
-  font-size: 13px;
-}
 
 /* 집에서 해볼 수 있는 활동 섹션 */
 .home-activities-section {
