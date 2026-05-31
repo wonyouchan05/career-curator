@@ -721,6 +721,35 @@ select:focus {
   margin-bottom: 10px;
 }
 
+/* 지역·분야 격차 솔직 안내 */
+.gap-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  grid-column: 1 / -1;
+}
+.gap-notice-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.gap-notice div  { font-size: 13.5px; color: #7C2D12; line-height: 1.65; }
+.gap-notice strong { font-weight: 600; display: block; margin-bottom: 2px; }
+
+/* 커리어넷 실시간 데이터 배지 */
+.badge-realtime {
+  background: #ECFDF5;
+  color: #065F46;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid #A7F3D0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .section-highlighted .section-head h3 {
   color: var(--primary);
 }
