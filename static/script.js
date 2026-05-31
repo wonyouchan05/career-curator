@@ -551,15 +551,24 @@ async function renderCareerSection(interests) {
     const jobs = (data.jobs || []).slice(0, 6);
 
     if (jobs.length) {
-      // CareerNet 실시간 데이터
-      console.log(`[커리어넷] 실시간 ${jobs.length}개:`, jobs.map(j => j.job));
-      $('career-count').textContent = jobs.length + '개';
+      // is_partial: API 결과 3개 미만 → CAREER_MAP으로 보완
+      const badgeLabel = data.is_partial ? '커리어넷 참고' : '커리어넷 실시간';
+      const badgeClass = data.is_partial ? 'badge-ref'     : 'badge-realtime';
+
+      let allJobs = [...jobs];
+      if (data.is_partial) {
+        const mapJobs = (CAREER_MAP[keyword] || []).filter(n => !jobs.some(j => j.job === n));
+        mapJobs.slice(0, 6 - jobs.length).forEach(n => allJobs.push({ job: n, _map: true }));
+      }
+
+      console.log(`[커리어넷] ${data.is_partial ? '참고(보완)' : '실시간'} ${allJobs.length}개:`, allJobs.map(j => j.job));
+      $('career-count').textContent = allJobs.length + '개';
       $('career-cards').innerHTML =
-        jobs.map(job => `
+        allJobs.map(job => `
           <div class="card">
             <div class="card-top">
               <span class="card-title">👔 ${escHtml(job.job || '')}</span>
-              <span class="badge badge-realtime">커리어넷 실시간</span>
+              ${!job._map ? `<span class="badge ${badgeClass}">${badgeLabel}</span>` : ''}
             </div>
             ${job.salery    ? `<div class="card-meta"><span>💰 ${escHtml(job.salery)}</span></div>`           : ''}
             ${job.possibility ? `<div class="card-meta"><span>📈 전망: ${escHtml(job.possibility)}</span></div>` : ''}

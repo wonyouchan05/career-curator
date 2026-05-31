@@ -366,15 +366,31 @@ async def get_careers(keyword: str):
                     all_jobs.append(job)
 
         if profession_hint:
-            jobs = [j for j in all_jobs if profession_hint in (j.get("profession") or "")]
-            # profession 필터 후 결과 없으면 전체 상위 5개 fallback
-            if not jobs and all_jobs:
-                jobs = all_jobs[:5]
+            # 1차: profession / job명 / similarJob 포함 넓은 필터
+            def _matches(j: dict) -> bool:
+                return (
+                    profession_hint in (j.get("profession") or "") or
+                    profession_hint in (j.get("job") or "") or
+                    keyword       in (j.get("job") or "") or
+                    profession_hint in (j.get("similarJob") or "")
+                )
+            jobs = [j for j in all_jobs if _matches(j)]
+
+            # 2차: 매칭된 항목의 similarJob에서 추가 직업명 추출
+            if len(jobs) < 6:
+                seen_names = {j.get("job", "") for j in jobs}
+                for base in jobs[:3]:
+                    for sj in (base.get("similarJob") or "").split(","):
+                        sj = sj.strip()
+                        if sj and sj not in seen_names and len(jobs) < 6:
+                            seen_names.add(sj)
+                            jobs.append({"job": sj, "jobdicSeq": f"similar_{sj}"})
         else:
-            # profession_hint 없는 관심분야는 CareerNet 매핑 불가 → 프론트 CAREER_MAP 사용
+            # profession_hint 없는 관심분야 → 프론트 CAREER_MAP 사용
             jobs = []
 
-        return {"jobs": jobs[:8], "keyword": keyword, "has_hint": bool(profession_hint)}
+        is_partial = bool(profession_hint) and len(jobs) < 3
+        return {"jobs": jobs[:6], "keyword": keyword, "has_hint": bool(profession_hint), "is_partial": is_partial}
     except Exception:
         return {"jobs": [], "keyword": keyword}
 
