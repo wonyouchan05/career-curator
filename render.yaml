@@ -8,4 +8,4 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: CAREER_NET_API_KEY
-        value: 822968249348095bf6d67cac11bb3d79
+        sync: false
