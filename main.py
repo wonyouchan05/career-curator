@@ -366,15 +366,8 @@ async def get_careers(keyword: str):
                     all_jobs.append(job)
 
         if profession_hint:
-            # 1차: profession / job명 / similarJob 포함 넓은 필터
-            def _matches(j: dict) -> bool:
-                return (
-                    profession_hint in (j.get("profession") or "") or
-                    profession_hint in (j.get("job") or "") or
-                    keyword       in (j.get("job") or "") or
-                    profession_hint in (j.get("similarJob") or "")
-                )
-            jobs = [j for j in all_jobs if _matches(j)]
+            # 1차: profession 필드 strict 필터 (오탐 방지)
+            jobs = [j for j in all_jobs if profession_hint in (j.get("profession") or "")]
 
             # 2차: 매칭된 항목의 similarJob에서 추가 직업명 추출
             if len(jobs) < 6:
@@ -384,7 +377,7 @@ async def get_careers(keyword: str):
                         sj = sj.strip()
                         if sj and sj not in seen_names and len(jobs) < 6:
                             seen_names.add(sj)
-                            jobs.append({"job": sj, "jobdicSeq": f"similar_{sj}"})
+                            jobs.append({"job": sj, "jobdicSeq": f"sim_{sj}"})
         else:
             # profession_hint 없는 관심분야 → 프론트 CAREER_MAP 사용
             jobs = []
