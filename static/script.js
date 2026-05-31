@@ -443,8 +443,6 @@ function renderResults() {
     sectionHome.classList.remove('section-highlighted');
   }
 
-  // 집에서 할 수 있는 활동 (renderResults에서도 직접 호출 — 이중 보장)
-  renderHomeActivities(interests);
 }
 
 function giftedCard(g) {

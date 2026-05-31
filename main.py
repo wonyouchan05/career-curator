@@ -409,16 +409,21 @@ async def get_home_activities(req: HomeActivitiesRequest):
         f"대화 내용:\n{conversation}\n\n"
         "위 학생이 지금 당장 집에서 할 수 있는 구체적인 활동 4가지를 제안해줘.\n"
         "조건: 무료 또는 저비용, 인터넷/집에서 가능, 관심분야에 직접 연결, 구체적인 도구/웹사이트/방법 포함.\n"
-        '반드시 JSON만: {"activities": ["활동1", "활동2", "활동3", "활동4"]}'
+        "다른 말 없이 JSON 배열만 출력해:\n"
+        '["활동1", "활동2", "활동3", "활동4"]'
     )
     try:
         resp = await async_client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=300,
+            max_tokens=400,
             messages=[{"role": "user", "content": prompt}],
         )
-        result = json.loads(resp.content[0].text)
-        return {"activities": result.get("activities", [])}
+        raw = resp.content[0].text.strip()
+        # JSON 배열 추출
+        start = raw.find("[")
+        end   = raw.rfind("]") + 1
+        activities = json.loads(raw[start:end]) if start != -1 else []
+        return {"activities": activities[:4]}
     except Exception:
         return {"activities": []}
 
